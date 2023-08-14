@@ -1,39 +1,41 @@
-import { StyleSheet, Pressable } from 'react-native'
-import React from 'react'
-import { Checkbox, Divider, Text } from 'react-native-paper'
+import { StyleSheet, Pressable } from "react-native";
+import React from "react";
+import { Checkbox, Divider, Text } from "react-native-paper";
 
 type TProps = {
-    name: string
-    onPress: ()=> void
-    isChecked?: boolean
-}
+  name: string;
+  onPress: () => void;
+  onLongPress: () => void;
+  isChecked?: boolean;
+};
 
-const CardTask = ({
-    name,
-    onPress,
-    isChecked = false
-}:TProps) => {
-    //TODO: add logic to apply `text` style if 'isChecked === true`
+const CardTask = ({ name, onPress, onLongPress, isChecked = false }: TProps) => {
   return (
-    <Pressable style={styles.container} onPress={()=>onPress?.()}>
-    <Checkbox.Android status={isChecked ? 'checked' : 'unchecked'} />
-        <Text style={styles.text} numberOfLines={1}>{name}</Text>
-        <Divider />
+    <Pressable
+      style={styles.container}
+      onPress={() => onPress?.()}
+      onLongPress={() => onLongPress?.()}
+    >
+      <Checkbox.Android status={isChecked ? "checked" : "unchecked"} />
+      <Text style={[isChecked ? styles.text : {}]} numberOfLines={1}>
+        {name}
+      </Text>
+      <Divider />
     </Pressable>
-  )
-}
+  );
+};
 
-export default CardTask
+export default CardTask;
 
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 15
-    },
-    text: {
-        textDecorationLine: 'line-through',
-        textDecorationStyle: 'solid'
-    }
-})
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+  },
+  text: {
+    textDecorationLine: "line-through",
+    textDecorationStyle: "solid",
+  },
+});
