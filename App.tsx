@@ -1,35 +1,92 @@
-import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { ActivityIndicator, Button, PaperProvider } from 'react-native-paper';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import CustomAppbar from './src/components/CustomAppbar';
-import CustomInput from './src/components/CustomInput';
-import { useRef, useState } from 'react';
-import CardTask from './src/components/CardTask';
+import { StatusBar } from "expo-status-bar";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { ActivityIndicator, Button, PaperProvider } from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import CustomAppbar from "./src/components/CustomAppbar";
+import CustomInput from "./src/components/CustomInput";
+import { useRef, useState } from "react";
+import CardTask from "./src/components/CardTask";
+import CustomDialog from "./src/components/CustomDialog";
 
 type ItemList = {
-  name: string
-  isChecked?: boolean
-}
+  name: string;
+  isChecked?: boolean;
+};
 
-const list = [{name: 'tarea 1', isChecked: true}, {name: 'tarea 2', isChecked: false}]
+const list = [
+  { name: "tarea 1", isChecked: false },
+  { name: "tarea 2", isChecked: false },
+];
 
 function App() {
-  const [taskString, setTaskString] = useState<string>('')
-  const [tasksList, setTaskList] = useState<ItemList[]>(list)
+  const [taskString, setTaskString] = useState<string>("");
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [tasksList, setTaskList] = useState<ItemList[]>(list);
+  const [itemSelected, setItemSelected] = useState<number | null>(null);
 
-const handleOnPress = (itemId: string) => {
-  alert(itemId)
-}
-  
+  const handleChecked = (index: number) => {
+    setTaskList((prevItems) => {
+      const newItems = [...prevItems];
+      newItems[index].isChecked = !newItems[index].isChecked;
+      return newItems;
+    });
+  };
+
+  const addNewTask = () => {
+    const newTask: ItemList = {
+      name: taskString,
+      isChecked: false,
+    };
+    setTaskList((prevItems) => {
+      const newItems = [...prevItems, newTask];
+      return newItems;
+    });
+  };
+
+  const onRemoveItem = (index: number) => {
+    setShowDialog(true);
+    setItemSelected(index);
+  };
+
+  const doRemoveItem = () => {
+    setShowDialog(false);
+    setTaskList((prevItems) =>
+      prevItems.filter((_, itemIndex: number) => itemIndex !== itemSelected)
+    );
+    setItemSelected(null);
+  };
 
   return (
     <View style={styles.container}>
-      <CustomAppbar title='Checklist' goBack={()=>alert('go back')} />
-      <CustomInput label={'Agregar tarea'} onChangeText={(text) => setTaskString(text)} value={taskString} />
-      {list.map(function(item,index){
-        return <CardTask key={`task-${index}`} name={item.name} isChecked={item.isChecked} onPress={()=>handleOnPress(`item ${index}`)} /> 
+      <CustomAppbar title="Checklist" goBack={() => alert("go back")} />
+      <CustomInput
+        label={"Agregar tarea"}
+        onChangeText={(text) => setTaskString(text)}
+        value={taskString}
+        onSave={() => addNewTask()}
+      />
+      {tasksList.map(function (item, index) {
+        return (
+          <CardTask
+            key={`task-${index}`}
+            name={item.name}
+            isChecked={item.isChecked}
+            onPress={() => handleChecked(index)}
+            onLongPress={() => onRemoveItem(index)}
+          />
+        );
       })}
+      <CustomDialog
+        isVisible={showDialog}
+        onDismiss={() => setShowDialog(false)}
+        onConfirm={() => doRemoveItem()}
+      />
     </View>
   );
 }
@@ -37,9 +94,9 @@ const handleOnPress = (itemId: string) => {
 export default function Main() {
   return (
     <PaperProvider>
-    <SafeAreaProvider>
-      <App />
-    </SafeAreaProvider>
+      <SafeAreaProvider>
+        <App />
+      </SafeAreaProvider>
     </PaperProvider>
   );
 }
@@ -47,6 +104,6 @@ export default function Main() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
 });
