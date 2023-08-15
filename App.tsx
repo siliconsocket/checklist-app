@@ -49,6 +49,7 @@ function App() {
         const newItems = [...prevItems, newTask];
         return newItems;
       });
+      setTaskString('');
     }
     else{
       Alert.alert('Error', 'El campo de tarea esta vacio, por favor agregue una tarea',[
