@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ViewStyle } from "react-native";
 import React from "react";
-import { Button, TextInput } from "react-native-paper";
+import { IconButton, TextInput } from "react-native-paper";
 
 type TProps = {
   placeholder?: string;
@@ -29,14 +29,11 @@ const CustomInput = ({
         style={styles.input}
         onChangeText={(text) => onChangeText?.(text)}
       />
-      <Button
-        icon="content-save"
-        mode="contained"
-        style={styles.btn}
+      <IconButton
+        icon="plus-thick"
+        size={25}
         onPress={() => onSave?.()}
-      >
-        Guardar
-      </Button>
+      />
     </View>
   );
 };
@@ -56,8 +53,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
   },
-  btn: {
-    marginLeft: 5,
-    width: 111,
-  },
+  /*btn: {
+    //marginLeft: 5,
+    //width: 111,
+  },*/
 });
