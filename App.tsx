@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {
+  Alert,
   Dimensions,
   StyleSheet,
   Text,
@@ -39,14 +40,23 @@ function App() {
   };
 
   const addNewTask = () => {
-    const newTask: ItemList = {
-      name: taskString,
-      isChecked: false,
-    };
-    setTaskList((prevItems) => {
-      const newItems = [...prevItems, newTask];
-      return newItems;
-    });
+    if (taskString.trim() !== '') {
+      const newTask: ItemList = {
+        name: taskString,
+        isChecked: false,
+      };
+      setTaskList((prevItems) => {
+        const newItems = [...prevItems, newTask];
+        return newItems;
+      });
+    }
+    else{
+      Alert.alert('Error', 'El campo de tarea esta vacio, por favor agregue una tarea',[
+        {
+          text: 'Aceptar'
+        }
+      ]);
+    }
   };
 
   const onRemoveItem = (index: number) => {
