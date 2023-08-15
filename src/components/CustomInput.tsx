@@ -52,9 +52,5 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-  },
-  /*btn: {
-    //marginLeft: 5,
-    //width: 111,
-  },*/
+  }
 });

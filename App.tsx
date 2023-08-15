@@ -51,7 +51,11 @@ function App() {
       });
     }
     else{
-      Alert.alert('Error', 'El campo de tarea esta vacio, por favor agregue una tarea');
+      Alert.alert('Error', 'El campo de tarea esta vacio, por favor agregue una tarea',[
+        {
+          text: 'Aceptar'
+        }
+      ]);
     }
   };
 
