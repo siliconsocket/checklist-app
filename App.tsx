@@ -1,19 +1,11 @@
-import { StatusBar } from "expo-status-bar";
-import {
-  Alert,
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import { ActivityIndicator, Button, PaperProvider } from "react-native-paper";
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
+import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import CustomAppbar from "./src/components/CustomAppbar";
-import CustomInput from "./src/components/CustomInput";
-import { useRef, useState } from "react";
 import CardTask from "./src/components/CardTask";
+import CustomAppbar from "./src/components/CustomAppbar";
 import CustomDialog from "./src/components/CustomDialog";
+import CustomInput from "./src/components/CustomInput";
 
 type ItemList = {
   name: string;
@@ -40,7 +32,7 @@ function App() {
   };
 
   const addNewTask = () => {
-    if (taskString.trim() !== '') {
+    if (taskString.trim() !== "") {
       const newTask: ItemList = {
         name: taskString,
         isChecked: false,
@@ -49,14 +41,17 @@ function App() {
         const newItems = [...prevItems, newTask];
         return newItems;
       });
-      setTaskString('');
-    }
-    else{
-      Alert.alert('Error', 'El campo de tarea esta vacio, por favor agregue una tarea',[
-        {
-          text: 'Aceptar'
-        }
-      ]);
+      setTaskString("");
+    } else {
+      Alert.alert(
+        "Error",
+        "El campo de tarea esta vacío, por favor agregue una tarea",
+        [
+          {
+            text: "Aceptar",
+          },
+        ]
+      );
     }
   };
 
