@@ -1,34 +1,48 @@
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, View } from "react-native";
 import React from "react";
-import { Checkbox, Divider, Text } from "react-native-paper";
+import { Checkbox, Divider, IconButton, Text } from "react-native-paper";
 
 type TProps = {
   name: string;
   onPress: () => void;
   onLongPress: () => void;
+  onEdit: () => void;
   isChecked?: boolean;
 };
 
-const CardTask = ({ name, onPress, onLongPress, isChecked = false }: TProps) => {
+const CardTask = ({
+  name,
+  onPress,
+  onLongPress,
+  onEdit,
+  isChecked = false,
+}: TProps) => {
   return (
-    <Pressable
-      style={styles.container}
-      onPress={() => onPress?.()}
-      onLongPress={() => onLongPress?.()}
-    >
-      <Checkbox.Android status={isChecked ? "checked" : "unchecked"} />
-      <Text style={[isChecked ? styles.text : {}]} numberOfLines={1}>
-        {name}
-      </Text>
-      <Divider />
-    </Pressable>
+    <View style={styles.wrapper}>
+      <Pressable
+        style={styles.container}
+        onPress={() => onPress?.()}
+        onLongPress={() => onLongPress?.()}
+      >
+        <Checkbox.Android status={isChecked ? "checked" : "unchecked"} />
+        <Text style={[isChecked ? styles.text : {}]} numberOfLines={1}>
+          {name}
+        </Text>
+        <Divider />
+      </Pressable>
+      <IconButton icon="plus-thick" size={25} onPress={() => onEdit?.()} />
+    </View>
   );
 };
 
 export default CardTask;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flexDirection: "row",
+  },
   container: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 5,
