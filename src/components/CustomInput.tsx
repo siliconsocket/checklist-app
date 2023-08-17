@@ -29,11 +29,9 @@ const CustomInput = ({
         style={styles.input}
         onChangeText={(text) => onChangeText?.(text)}
       />
-      <IconButton
-        icon="plus-thick"
-        size={25}
-        onPress={() => onSave?.()}
-      />
+      {onSave && (
+        <IconButton icon="plus-thick" size={25} onPress={() => onSave?.()} />
+      )}
     </View>
   );
 };
@@ -52,5 +50,5 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-  }
+  },
 });
