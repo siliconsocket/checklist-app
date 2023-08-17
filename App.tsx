@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, Surface, Text } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import CardTask from "./src/components/CardTask";
 import CustomAppbar from "./src/components/CustomAppbar";
@@ -12,16 +12,28 @@ type ItemList = {
   isChecked?: boolean;
 };
 
-const list = [
-  { name: "tarea 1", isChecked: false },
-  { name: "tarea 2", isChecked: false },
-];
+export enum DIALOG_TYPE {
+  CONFIRM = "CONFIRM",
+  EDIT = "EDIT",
+}
+
+enum DIALOG_TITLE {
+  CONFIRM = "Confirmación",
+  EDIT = "Editar tarea",
+}
 
 function App() {
   const [taskString, setTaskString] = useState<string>("");
   const [showDialog, setShowDialog] = useState<boolean>(false);
-  const [tasksList, setTaskList] = useState<ItemList[]>(list);
-  const [itemSelected, setItemSelected] = useState<number | null>(null);
+  const [dialogType, setDialogType] = useState<DIALOG_TYPE>(
+    DIALOG_TYPE.CONFIRM
+  );
+  const [dialogTitle, setDialogTitle] = useState<DIALOG_TITLE>(
+    DIALOG_TITLE.CONFIRM
+  );
+  const [tasksList, setTaskList] = useState<ItemList[]>([]);
+  const [indexSelected, setIndexSelected] = useState<number>(0);
+  const [nameSelected, setNameSelected] = useState<string>("");
 
   const handleChecked = (index: number) => {
     setTaskList((prevItems) => {
@@ -55,29 +67,48 @@ function App() {
     }
   };
 
+  const updateTask = (newName?: string) => {
+    if (!newName) {
+      Alert.alert("Error", "El nombre de la tarea es requerido.", [
+        {
+          text: "Aceptar",
+        },
+      ]);
+      return;
+    }
+    setTaskList((prevItems) => {
+      const newItems = [...prevItems];
+      newItems[indexSelected].name = newName;
+      return newItems;
+    });
+    setShowDialog(false);
+  };
+
+  const onEdit = (name: string) => {
+    setShowDialog(true);
+    setDialogType(DIALOG_TYPE.EDIT);
+    setDialogTitle(DIALOG_TITLE.EDIT);
+    setNameSelected(name);
+  };
+
   const onRemoveItem = (index: number) => {
     setShowDialog(true);
-    setItemSelected(index);
+    setDialogType(DIALOG_TYPE.CONFIRM);
+    setDialogTitle(DIALOG_TITLE.CONFIRM);
+    setIndexSelected(index);
   };
 
   const doRemoveItem = () => {
     setShowDialog(false);
     setTaskList((prevItems) =>
-      prevItems.filter((_, itemIndex: number) => itemIndex !== itemSelected)
+      prevItems.filter((_, itemIndex: number) => itemIndex !== indexSelected)
     );
-    setItemSelected(null);
+    setIndexSelected(0);
   };
 
-  return (
-    <View style={styles.container}>
-      <CustomAppbar title="Checklist" goBack={() => alert("go back")} />
-      <CustomInput
-        label={"Agregar tarea"}
-        onChangeText={(text) => setTaskString(text)}
-        value={taskString}
-        onSave={() => addNewTask()}
-      />
-      {tasksList.map(function (item, index) {
+  const renderBody = () => {
+    if (tasksList.length > 0) {
+      return tasksList.map(function (item, index) {
         return (
           <CardTask
             key={`task-${index}`}
@@ -85,14 +116,42 @@ function App() {
             isChecked={item.isChecked}
             onPress={() => handleChecked(index)}
             onLongPress={() => onRemoveItem(index)}
+            onEdit={() => onEdit?.(item.name)}
           />
         );
-      })}
-      <CustomDialog
-        isVisible={showDialog}
-        onDismiss={() => setShowDialog(false)}
-        onConfirm={() => doRemoveItem()}
+      });
+    }
+    return (
+      <Surface style={styles.empty}>
+        <Text>{"Ingresa una tarea"}</Text>
+      </Surface>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <CustomAppbar title="Checklist" />
+      <CustomInput
+        label={"Agregar tarea"}
+        onChangeText={(text) => setTaskString(text)}
+        value={taskString}
+        onSave={() => addNewTask()}
       />
+      {renderBody()}
+      {showDialog && (
+        <CustomDialog
+          title={dialogTitle}
+          fieldValue={nameSelected}
+          dialogType={dialogType}
+          onDismiss={() => setShowDialog(false)}
+          onConfirm={(newName?: string) =>
+            dialogType === DIALOG_TYPE.CONFIRM
+              ? doRemoveItem()
+              : updateTask(newName)
+          }
+          isVisible
+        />
+      )}
     </View>
   );
 }
@@ -110,6 +169,12 @@ export default function Main() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+  },
+  empty: {
+    margin: 5,
+    height: 77,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
