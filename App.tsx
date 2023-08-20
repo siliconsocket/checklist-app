@@ -1,59 +1,61 @@
-import { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { PaperProvider, Surface, Text } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  Provider as ReduxProvider,
+  useDispatch,
+  useSelector,
+} from "react-redux";
 import CardTask from "./src/components/CardTask";
 import CustomAppbar from "./src/components/CustomAppbar";
 import CustomDialog from "./src/components/CustomDialog";
 import CustomInput from "./src/components/CustomInput";
 
-type ItemList = {
-  name: string;
-  isChecked?: boolean;
-};
+import store from "./src/config/reduxStore";
 
-export enum DIALOG_TYPE {
-  CONFIRM = "CONFIRM",
-  EDIT = "EDIT",
-}
-
-enum DIALOG_TITLE {
-  CONFIRM = "Confirmación",
-  EDIT = "Editar tarea",
-}
+import {
+  addTask,
+  removeTask,
+  setDialogTitle,
+  setDialogType,
+  setIndexSelected,
+  setNameSelected,
+  setShowDialog,
+  setTaskFieldValue,
+  toggleChecked,
+  updateTaskName,
+} from "./src/actions/task";
+import { DIALOG_TITLE, DIALOG_TYPE, ItemList } from "./src/reducers/Tasks";
 
 function App() {
-  const [taskString, setTaskString] = useState<string>("");
-  const [showDialog, setShowDialog] = useState<boolean>(false);
-  const [dialogType, setDialogType] = useState<DIALOG_TYPE>(
-    DIALOG_TYPE.CONFIRM
+  const dispatch = useDispatch();
+
+  const dialogIsVisible = useSelector((state) => state.Tasks.dialogIsVisible);
+  const dialogTitle = useSelector((state) => state.Tasks.dialogTitle);
+  const dialogType = useSelector((state) => state.Tasks.dialogType);
+  const taskIndexSelected = useSelector(
+    (state) => state.Tasks.taskIndexSelected
   );
-  const [dialogTitle, setDialogTitle] = useState<DIALOG_TITLE>(
-    DIALOG_TITLE.CONFIRM
-  );
-  const [tasksList, setTaskList] = useState<ItemList[]>([]);
-  const [indexSelected, setIndexSelected] = useState<number>(0);
-  const [nameSelected, setNameSelected] = useState<string>("");
+  const taskFieldValue = useSelector((state) => state.Tasks.taskFieldValue);
+  const taskNameSelected = useSelector((state) => state.Tasks.taskNameSelected);
+  const tasksList = useSelector((state) => state.Tasks.tasksList);
+
+  const handleChangeText = (text: string) => {
+    dispatch(setTaskFieldValue(text));
+  };
 
   const handleChecked = (index: number) => {
-    setTaskList((prevItems) => {
-      const newItems = [...prevItems];
-      newItems[index].isChecked = !newItems[index].isChecked;
-      return newItems;
-    });
+    dispatch(toggleChecked(index));
   };
 
   const addNewTask = () => {
-    if (taskString.trim() !== "") {
+    if (taskFieldValue.trim() !== "") {
       const newTask: ItemList = {
-        name: taskString,
+        name: taskFieldValue,
         isChecked: false,
       };
-      setTaskList((prevItems) => {
-        const newItems = [...prevItems, newTask];
-        return newItems;
-      });
-      setTaskString("");
+      dispatch(addTask(newTask));
+      dispatch(setTaskFieldValue(""));
     } else {
       Alert.alert(
         "Error",
@@ -76,34 +78,28 @@ function App() {
       ]);
       return;
     }
-    setTaskList((prevItems) => {
-      const newItems = [...prevItems];
-      newItems[indexSelected].name = newName;
-      return newItems;
-    });
-    setShowDialog(false);
+    dispatch(updateTaskName(newName, taskIndexSelected));
+    dispatch(setShowDialog(false));
   };
 
   const onEdit = (name: string) => {
-    setShowDialog(true);
-    setDialogType(DIALOG_TYPE.EDIT);
-    setDialogTitle(DIALOG_TITLE.EDIT);
-    setNameSelected(name);
+    dispatch(setShowDialog(true));
+    dispatch(setDialogType(DIALOG_TYPE.EDIT));
+    dispatch(setDialogTitle(DIALOG_TITLE.EDIT));
+    dispatch(setNameSelected(name));
   };
 
   const onRemoveItem = (index: number) => {
-    setShowDialog(true);
-    setDialogType(DIALOG_TYPE.CONFIRM);
-    setDialogTitle(DIALOG_TITLE.CONFIRM);
-    setIndexSelected(index);
+    dispatch(setShowDialog(true));
+    dispatch(setDialogType(DIALOG_TYPE.CONFIRM));
+    dispatch(setDialogTitle(DIALOG_TITLE.CONFIRM));
+    dispatch(setIndexSelected(index));
   };
 
   const doRemoveItem = () => {
-    setShowDialog(false);
-    setTaskList((prevItems) =>
-      prevItems.filter((_, itemIndex: number) => itemIndex !== indexSelected)
-    );
-    setIndexSelected(0);
+    dispatch(setShowDialog(false));
+    dispatch(removeTask());
+    dispatch(setIndexSelected(0));
   };
 
   const renderBody = () => {
@@ -133,17 +129,16 @@ function App() {
       <CustomAppbar title="Checklist" />
       <CustomInput
         label={"Agregar tarea"}
-        onChangeText={(text) => setTaskString(text)}
-        value={taskString}
-        onSave={() => addNewTask()}
+        onChangeText={handleChangeText}
+        value={taskFieldValue}
+        onSave={addNewTask}
       />
       {renderBody()}
-      {showDialog && (
+      {dialogIsVisible && (
         <CustomDialog
           title={dialogTitle}
-          fieldValue={nameSelected}
-          dialogType={dialogType}
-          onDismiss={() => setShowDialog(false)}
+          fieldValue={taskNameSelected}
+          onDismiss={() => dispatch(setShowDialog(false))}
           onConfirm={(newName?: string) =>
             dialogType === DIALOG_TYPE.CONFIRM
               ? doRemoveItem()
@@ -158,11 +153,13 @@ function App() {
 
 export default function Main() {
   return (
-    <PaperProvider>
-      <SafeAreaProvider>
-        <App />
-      </SafeAreaProvider>
-    </PaperProvider>
+    <ReduxProvider store={store}>
+      <PaperProvider>
+        <SafeAreaProvider>
+          <App />
+        </SafeAreaProvider>
+      </PaperProvider>
+    </ReduxProvider>
   );
 }
 

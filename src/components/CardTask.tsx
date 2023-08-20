@@ -30,7 +30,7 @@ const CardTask = ({
         </Text>
         <Divider />
       </Pressable>
-      <IconButton icon="plus-thick" size={25} onPress={() => onEdit?.()} />
+      <IconButton icon="pencil" size={25} onPress={() => onEdit?.()} />
     </View>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Button, Dialog, Portal, Text } from "react-native-paper";
-import { DIALOG_TYPE } from "../../App";
+import { useSelector } from "react-redux";
+import { DIALOG_TYPE } from "../reducers/Tasks";
 import CustomInput from "./CustomInput";
 
 type TDialogProps = {
   isVisible?: boolean;
   title?: string;
-  dialogType: DIALOG_TYPE;
   fieldValue?: string;
   fieldLabel?: string;
   onDismiss?: () => void;
@@ -20,9 +20,9 @@ const CustomDialog = ({
   title = "Confirmación",
   fieldValue = "",
   fieldLabel = "Agregar tarea",
-  dialogType,
 }: TDialogProps) => {
   const [newName, setNewName] = useState<string>(fieldValue);
+  const dialogType = useSelector((state) => state.Tasks.dialogType);
 
   const renderDialogContent = () => {
     switch (dialogType) {
